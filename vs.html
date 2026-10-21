@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보물 줍기: 변수 vs 리스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Jua', sans-serif;
+            touch-action: manipulation;
+        }
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+    </style>
+</head>
+<body class="bg-amber-50 min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- Header Navigation -->
+    <header class="bg-amber-400 border-b-4 border-amber-500 p-4 shadow-md text-white sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">💎</span>
+                <h1 class="text-2xl md:text-3xl font-black text-amber-950 drop-shadow">컴퓨팅 사고력: 변수 vs 리스트</h1>
+            </div>
+            <div class="flex gap-2">
+                <button id="tab-stage1" onclick="switchStage(1)" class="px-4 py-2 rounded-2xl font-bold text-sm md:text-base transition-all border-b-4 border-amber-700 bg-amber-600 text-white shadow-lg">
+                    1단계: 보물 줍기 비교
+                </button>
+                <button id="tab-stage2" onclick="switchStage(2)" class="px-4 py-2 rounded-2xl font-bold text-sm md:text-base transition-all border-b-4 border-gray-300 bg-gray-200 text-gray-600 shadow-sm hover:bg-amber-200">
+                    2단계: 개념 퀴즈
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl w-full mx-auto p-4 flex-grow">
+
+        <!-- STAGE 1: Treasure Collector Comparison Game -->
+        <section id="stage1-container" class="flex flex-col gap-6">
+
+            <!-- Treasure Buttons Bar -->
+            <div class="bg-white border-4 border-amber-300 rounded-3xl p-5 text-center shadow-lg">
+                <h2 class="text-xl md:text-2xl font-black text-amber-900 mb-1">
+                    👇 다양한 보물을 클릭해서 주워보세요!
+                </h2>
+                <p class="text-slate-600 font-bold text-xs md:text-sm mb-4">보물을 주울 때마다 변수 상자와 스크래치 방식의 리스트 사물함에 어떻게 저장되는지 비교해보세요.</p>
+                
+                <div class="flex justify-center items-center gap-2 md:gap-4 flex-wrap max-h-40 overflow-y-auto p-2" id="treasure-buttons">
+                    <button onclick="pickTreasure('🍎', '사과')" class="bg-red-50 hover:bg-red-100 border-3 border-red-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🍎 <span class="block text-[11px] md:text-xs font-black mt-1 text-red-900">사과</span>
+                    </button>
+                    <button onclick="pickTreasure('🔑', '열쇠')" class="bg-amber-50 hover:bg-amber-100 border-3 border-amber-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🔑 <span class="block text-[11px] md:text-xs font-black mt-1 text-amber-900">열쇠</span>
+                    </button>
+                    <button onclick="pickTreasure('⭐', '별')" class="bg-yellow-50 hover:bg-yellow-100 border-3 border-yellow-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        ⭐ <span class="block text-[11px] md:text-xs font-black mt-1 text-yellow-900">별</span>
+                    </button>
+                    <button onclick="pickTreasure('👑', '왕관')" class="bg-purple-50 hover:bg-purple-100 border-3 border-purple-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        👑 <span class="block text-[11px] md:text-xs font-black mt-1 text-purple-900">왕관</span>
+                    </button>
+                    <button onclick="pickTreasure('💎', '보석')" class="bg-blue-50 hover:bg-blue-100 border-3 border-blue-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        💎 <span class="block text-[11px] md:text-xs font-black mt-1 text-blue-900">보석</span>
+                    </button>
+                    <button onclick="pickTreasure('🍪', '쿠키')" class="bg-orange-50 hover:bg-orange-100 border-3 border-orange-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🍪 <span class="block text-[11px] md:text-xs font-black mt-1 text-orange-900">쿠키</span>
+                    </button>
+                    <button onclick="pickTreasure('🧸', '곰인형')" class="bg-rose-50 hover:bg-rose-100 border-3 border-rose-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🧸 <span class="block text-[11px] md:text-xs font-black mt-1 text-rose-900">곰인형</span>
+                    </button>
+                    <button onclick="pickTreasure('🚀', '로켓')" class="bg-indigo-50 hover:bg-indigo-100 border-3 border-indigo-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🚀 <span class="block text-[11px] md:text-xs font-black mt-1 text-indigo-900">로켓</span>
+                    </button>
+                    <button onclick="pickTreasure('🧪', '물약')" class="bg-emerald-50 hover:bg-emerald-100 border-3 border-emerald-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🧪 <span class="block text-[11px] md:text-xs font-black mt-1 text-emerald-900">물약</span>
+                    </button>
+                    <button onclick="pickTreasure('🛡️', '방패')" class="bg-cyan-50 hover:bg-cyan-100 border-3 border-cyan-400 rounded-2xl p-2.5 md:p-3.5 text-2xl md:text-3xl shadow-md transform hover:scale-105 active:scale-95 transition-all">
+                        🛡️ <span class="block text-[11px] md:text-xs font-black mt-1 text-cyan-900">방패</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Comparison Columns -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Left Column: Variable (Single Slot) -->
+                <div class="bg-gradient-to-b from-blue-50 to-blue-100 border-4 border-blue-400 rounded-3xl p-5 flex flex-col items-center justify-between shadow-lg relative min-h-[320px]">
+                    <div class="w-full text-center">
+                        <span class="bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-full uppercase tracking-wider">단 1개의 데이터만 저장</span>
+                        <h3 class="text-2xl font-black text-blue-900 mt-2">📦 변수 (Variable)</h3>
+                        <p class="text-xs md:text-sm text-blue-700 font-bold mt-1">"마지막 보물" 상자 (한 칸)</p>
+                    </div>
+
+                    <!-- Single Box Visual -->
+                    <div id="variable-box" class="w-32 h-32 border-4 border-dashed border-blue-400 bg-white rounded-3xl flex flex-col items-center justify-center my-3 relative shadow-inner transition-all">
+                        <span id="variable-icon" class="text-5xl opacity-30">❓</span>
+                        <span id="variable-name" class="text-xs font-bold text-slate-400 mt-2">(비어있음)</span>
+                    </div>
+
+                    <div class="w-full bg-blue-200/70 p-3 rounded-2xl text-center">
+                        <p class="text-xs md:text-sm font-bold text-blue-950">
+                            💡 새로운 보물을 주우면 이전 보물은 덮어써져서 사라져요!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Scratch List (Infinite Append) -->
+                <div class="bg-gradient-to-b from-emerald-50 to-emerald-100 border-4 border-emerald-400 rounded-3xl p-5 flex flex-col items-center justify-between shadow-lg relative min-h-[320px]">
+                    <div class="w-full text-center">
+                        <div class="w-full font-bold text-center mb-1">
+                            <span id="list-count-badge" class="bg-emerald-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-full uppercase tracking-wider">총 0개의 보물 저장됨</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-emerald-900 mt-1">🗄️ 리스트 (List)</h3>
+                        <p class="text-xs md:text-sm text-emerald-700 font-bold mt-1">"스크래치 스타일 무한 가방" (차곡차곡 계속 쌓임)</p>
+                    </div>
+
+                    <!-- List Slots Visual (Scrollable horizontally) -->
+                    <div class="w-full overflow-x-auto py-2 my-2 min-h-[120px] flex items-center">
+                        <div id="list-container" class="flex justify-start items-center gap-2 min-w-full px-2">
+                            <!-- Dynamic Scratch list items injected here -->
+                        </div>
+                    </div>
+
+                    <!-- List Operations -->
+                    <div class="w-full bg-emerald-200/70 p-3 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-2">
+                        <p class="text-xs md:text-sm font-bold text-emerald-950 text-center sm:text-left">
+                            💡 스크래치처럼 따로 삭제하지 않으면 보물이 계속 쌓여요!
+                        </p>
+                        <div class="flex gap-2">
+                            <button onclick="openSlotPrompt()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs md:text-sm px-3 py-1.5 rounded-xl shadow transition-all active:scale-95 whitespace-nowrap">
+                                🔍 N번 항목 가져오기
+                            </button>
+                            <button onclick="resetStage1()" class="bg-slate-500 hover:bg-slate-600 text-white font-bold text-xs md:text-sm px-3 py-1.5 rounded-xl shadow transition-all whitespace-nowrap">
+                                🔄 전체 삭제
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Real-Time Comparison Banner -->
+            <div id="feedback-banner" class="bg-white border-2 border-amber-400 p-4 rounded-2xl text-center shadow-md hidden">
+                <span id="feedback-text" class="text-base md:text-lg font-bold text-amber-950"></span>
+            </div>
+
+        </section>
+
+        <!-- STAGE 2: Concept Classification Quiz -->
+        <section id="stage2-container" class="hidden flex flex-col items-center gap-6">
+
+            <!-- Quiz Scoreboard -->
+            <div class="w-full flex justify-between items-center bg-white border-2 border-amber-300 rounded-2xl p-4 shadow-sm">
+                <div class="text-amber-900 font-bold text-lg">
+                    🏆 점수: <span id="quiz-score" class="text-2xl text-amber-600 font-black">0</span> 점
+                </div>
+                <div class="text-slate-600 font-bold text-sm md:text-base">
+                    문제: <span id="quiz-progress" class="text-amber-700 font-black">1</span> / 6
+                </div>
+            </div>
+
+            <!-- Quiz Card -->
+            <div id="quiz-card" class="w-full max-w-md bg-white border-4 border-amber-400 rounded-3xl p-6 md:p-8 text-center shadow-xl relative transform transition-all">
+                <div class="text-6xl mb-4" id="quiz-icon">💯</div>
+                <h3 class="text-2xl md:text-3xl font-black text-slate-800 mb-2" id="quiz-title">"내 점수"</h3>
+                <p class="text-slate-500 font-bold text-sm md:text-base mb-6" id="quiz-sub">이 데이터는 어디에 담는 것이 좋을까요?</p>
+
+                <!-- Choices -->
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="checkAnswer('variable')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-3 rounded-2xl shadow-lg border-b-4 border-blue-700 active:scale-95 transition-all text-base md:text-lg">
+                        📦 변수 상자<br><span class="text-xs font-normal opacity-80">(값 1개)</span>
+                    </button>
+                    <button onclick="checkAnswer('list')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-3 rounded-2xl shadow-lg border-b-4 border-emerald-700 active:scale-95 transition-all text-base md:text-lg">
+                        🗄️ 리스트 사물함<br><span class="text-xs font-normal opacity-80">(값 여러 개)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Feedback Popover -->
+            <div id="quiz-feedback" class="w-full max-w-md bg-amber-100 border-2 border-amber-300 rounded-2xl p-4 text-center hidden">
+                <p id="quiz-feedback-title" class="font-bold text-lg mb-1"></p>
+                <p id="quiz-feedback-desc" class="text-sm text-slate-700 mb-3"></p>
+                <button onclick="nextQuizQuestion()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded-xl shadow transition-all">
+                    다음 문제로 ▶
+                </button>
+            </div>
+
+            <!-- Quiz Complete View -->
+            <div id="quiz-complete" class="w-full max-w-md bg-white border-4 border-amber-400 rounded-3xl p-8 text-center shadow-xl hidden">
+                <div class="text-6xl mb-4">🎉</div>
+                <h3 class="text-3xl font-black text-amber-900 mb-2">퀴즈 완료!</h3>
+                <p class="text-lg text-slate-700 font-bold mb-4">
+                    최종 점수: <span id="final-score" class="text-3xl text-amber-600 font-black">0</span>점
+                </p>
+                <p class="text-slate-600 text-sm mb-6">
+                    "하나만 담으면 <span class="text-blue-600 font-bold">변수</span>, 여러 개를 줄 세우면 <span class="text-emerald-600 font-bold">리스트</span>!"<br>개념을 완벽하게 이해했네요!
+                </p>
+                <button onclick="resetQuiz()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg px-8 py-3 rounded-2xl shadow-lg border-b-4 border-amber-700 transition-all">
+                    🔄 다시 도전하기
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Slot Inspection Modal -->
+    <div id="slot-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white border-4 border-emerald-400 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl pop-in">
+            <h3 class="text-2xl font-black text-emerald-900 mb-2">🔍 리스트 항목 열어보기</h3>
+            <p class="text-slate-600 text-xs md:text-sm font-bold mb-4">스크래치의 <span class="bg-orange-100 text-orange-800 px-1 py-0.5 rounded border border-orange-300 font-mono">[N]번째 항목</span> 블록처럼 확인해보세요!</p>
+            
+            <div id="slot-button-group" class="flex flex-wrap justify-center gap-2 mb-4 max-h-36 overflow-y-auto p-1">
+                <!-- Slot quick selection buttons injected dynamically -->
+            </div>
+
+            <div id="slot-result" class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl min-h-[60px] flex items-center justify-center text-slate-700 font-bold text-sm mb-4">
+                번호를 누르면 해당 위치의 보물이 나와요!
+            </div>
+
+            <button onclick="closeSlotModal()" class="bg-slate-500 hover:bg-slate-600 text-white font-bold px-6 py-2 rounded-xl">
+                닫기
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 text-xs text-slate-400 font-bold border-t border-amber-200">
+        어린이를 위한 컴퓨팅 사고력 학습 콘텐츠 (스크래치 연계)
+    </footer>
+
+    <script>
+        // --- STAGE 1 LOGIC: VARIABLE vs SCRATCH LIST DEMO ---
+        let lastTreasure = null;
+        let treasureList = [];
+
+        function pickTreasure(icon, name) {
+            // Update Variable (Overwrites existing value)
+            lastTreasure = { icon, name };
+            
+            // Update List (Appends indefinitely like Scratch `add [thing] to [list]`)
+            treasureList.push({ icon, name });
+
+            renderStage1();
+
+            // Show real-time feedback
+            const banner = document.getElementById('feedback-banner');
+            const feedbackText = document.getElementById('feedback-text');
+            banner.classList.remove('hidden');
+            feedbackText.innerHTML = `
+                보물 <span class="text-2xl">${icon}</span> (${name})을 주웠어요!<br> 
+                <span class="text-blue-600 font-black">변수</span>는 이전 보물을 덮어썼고, 
+                <span class="text-emerald-600 font-black">리스트</span>는 삭제 없이 <span class="underline font-black">${treasureList.length}번째 항목</span>으로 계속 쌓여요!
+            `;
+        }
+
+        function renderStage1() {
+            // 1. Render Variable Box
+            const varBox = document.getElementById('variable-box');
+            const varIcon = document.getElementById('variable-icon');
+            const varName = document.getElementById('variable-name');
+
+            if (lastTreasure) {
+                varIcon.textContent = lastTreasure.icon;
+                varIcon.classList.remove('opacity-30');
+                varName.textContent = lastTreasure.name;
+                varName.className = "text-base font-extrabold text-blue-900 mt-2";
+
+                // Add animation effect
+                varBox.classList.remove('pop-in');
+                void varBox.offsetWidth; // trigger reflow
+                varBox.classList.add('pop-in');
+            } else {
+                varIcon.textContent = '❓';
+                varIcon.classList.add('opacity-30');
+                varName.textContent = '(비어있음)';
+                varName.className = "text-xs font-bold text-slate-400 mt-2";
+            }
+
+            // 2. Render Dynamic Scratch List Items
+            const listContainer = document.getElementById('list-container');
+            const countBadge = document.getElementById('list-count-badge');
+            
+            countBadge.textContent = `총 ${treasureList.length}개의 보물 저장됨`;
+
+            if (treasureList.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="w-full text-center py-6 text-slate-400 font-bold border-2 border-dashed border-emerald-300 rounded-2xl bg-white/50">
+                        리스트가 비어있어요. 상단의 보물을 클릭해보세요!
+                    </div>
+                `;
+                return;
+            }
+
+            let slotsHtml = '';
+            treasureList.forEach((item, index) => {
+                const isNewest = index === treasureList.length - 1;
+                slotsHtml += `
+                    <div class="w-20 h-24 border-2 border-emerald-500 bg-white rounded-2xl flex flex-col items-center justify-between p-2 shadow-sm relative flex-shrink-0 ${isNewest ? 'pop-in border-amber-400 ring-2 ring-amber-300' : ''}">
+                        <span class="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">${index + 1}번</span>
+                        <span class="text-2xl">${item.icon}</span>
+                        <span class="text-xs font-bold text-emerald-900 truncate w-full text-center">${item.name}</span>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = slotsHtml;
+
+            // Auto-scroll to the rightmost newly added item
+            const scrollParent = listContainer.parentElement;
+            scrollParent.scrollLeft = scrollParent.scrollWidth;
+        }
+
+        function resetStage1() {
+            lastTreasure = null;
+            treasureList = [];
+            renderStage1();
+            document.getElementById('feedback-banner').classList.add('hidden');
+        }
+
+        function openSlotPrompt() {
+            const buttonGroup = document.getElementById('slot-button-group');
+            const resultBox = document.getElementById('slot-result');
+
+            if (treasureList.length === 0) {
+                buttonGroup.innerHTML = '<p class="text-xs text-slate-400 font-bold">저장된 항목이 없습니다.</p>';
+                resultBox.innerHTML = '보물을 먼저 주워보세요!';
+            } else {
+                let btns = '';
+                treasureList.forEach((_, idx) => {
+                    btns += `
+                        <button onclick="inspectSlot(${idx})" class="bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-400 font-bold py-1 px-3 rounded-xl text-emerald-900 text-sm">
+                            ${idx + 1}번
+                        </button>
+                    `;
+                });
+                buttonGroup.innerHTML = btns;
+                resultBox.innerHTML = '확인하고 싶은 번호 버튼을 클릭하세요!';
+            }
+
+            document.getElementById('slot-modal').classList.remove('hidden');
+        }
+
+        function closeSlotModal() {
+            document.getElementById('slot-modal').classList.add('hidden');
+        }
+
+        function inspectSlot(index) {
+            const resultBox = document.getElementById('slot-result');
+            if (treasureList[index]) {
+                resultBox.innerHTML = `
+                    스크래치의 <span class="bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded font-mono text-xs border border-orange-300">[${index + 1}]번째 항목</span> 은<br>
+                    <span class="text-2xl mx-1">${treasureList[index].icon}</span> 
+                    <strong>${treasureList[index].name}</strong> 입니다!
+                `;
+            }
+        }
+
+
+        // --- STAGE 2 LOGIC: QUIZ ACTIVITIES ---
+        const quizQuestions = [
+            {
+                title: "게임 속 내 점수",
+                sub: "게임하며 실시간으로 계속 바뀌는 점수 한 개!",
+                icon: "💯",
+                type: "variable",
+                hint: "점수는 '85점'처럼 **하나의 값**만 기억하면 돼요! 새 점수가 들어오면 이전 점수는 필요 없어요."
+            },
+            {
+                title: "내 친구들의 이름 목록",
+                sub: "우리 반 친구 여러 명의 이름들",
+                icon: "👥",
+                type: "list",
+                hint: "친구 이름은 철수, 영희, 민수처럼 **여러 개**죠? 차곡차곡 줄 세워 저장하는 리스트가 딱이에요!"
+            },
+            {
+                title: "남은 목숨 수",
+                sub: "캐릭터의 현재 남은 하트 개수",
+                icon: "❤️",
+                type: "variable",
+                hint: "남은 목숨은 '3개', '2개'처럼 **현재 남아있는 수 하나**만 기록하면 돼요."
+            },
+            {
+                title: "가방 속 아이템 목록",
+                sub: "물약, 검, 방패, 열쇠 등 보관함",
+                icon: "🎒",
+                type: "list",
+                hint: "아이템은 1번 칸 물약, 2번 칸 검처럼 **여러 개를 담는 사물함(리스트)**에 저장해요!"
+            },
+            {
+                title: "플레이어 캐릭터의 이름",
+                sub: "게임 시작할 때 정한 내 캐릭터 이름",
+                icon: "🦸‍♂️",
+                type: "variable",
+                hint: "캐릭터 이름은 **딱 하나**뿐이에요. 한 칸짜리 변수 상자에 쏙 넣어요!"
+            },
+            {
+                title: "오늘 먹은 음식 리스트",
+                sub: "아침, 점심, 저녁에 먹은 모든 음식들",
+                icon: "🍕",
+                type: "list",
+                hint: "아침 샌드위치, 점심 라면, 저녁 비빔밥 등 **여러 개가 시간순으로 쌓이므로** 리스트가 필요해요!"
+            }
+        ];
+
+        let currentQuestionIdx = 0;
+        let score = 0;
+
+        function renderQuiz() {
+            if (currentQuestionIdx >= quizQuestions.length) {
+                // Quiz completed
+                document.getElementById('quiz-card').classList.add('hidden');
+                document.getElementById('quiz-feedback').classList.add('hidden');
+                document.getElementById('quiz-complete').classList.remove('hidden');
+                document.getElementById('final-score').textContent = score;
+
+                if (score >= 80) {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+                return;
+            }
+
+            const q = quizQuestions[currentQuestionIdx];
+            document.getElementById('quiz-title').textContent = `"${q.title}"`;
+            document.getElementById('quiz-sub').textContent = q.sub;
+            document.getElementById('quiz-icon').textContent = q.icon;
+            document.getElementById('quiz-progress').textContent = currentQuestionIdx + 1;
+            document.getElementById('quiz-score').textContent = score;
+
+            document.getElementById('quiz-card').classList.remove('hidden');
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-complete').classList.add('hidden');
+        }
+
+        function checkAnswer(chosenType) {
+            const q = quizQuestions[currentQuestionIdx];
+            const feedbackBox = document.getElementById('quiz-feedback');
+            const feedbackTitle = document.getElementById('quiz-feedback-title');
+            const feedbackDesc = document.getElementById('quiz-feedback-desc');
+
+            if (chosenType === q.type) {
+                score += 20;
+                feedbackTitle.textContent = "⭕ 정답이에요! 멋져요!";
+                feedbackTitle.className = "font-black text-xl text-emerald-600 mb-1";
+                feedbackDesc.textContent = q.hint;
+                
+                confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } });
+            } else {
+                feedbackTitle.textContent = "❌ 아쉬워요! 다시 생각해볼까요?";
+                feedbackTitle.className = "font-black text-xl text-red-500 mb-1";
+                feedbackDesc.textContent = q.hint;
+
+                document.getElementById('quiz-card').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('quiz-card').classList.remove('shake');
+                }, 400);
+            }
+
+            document.getElementById('quiz-score').textContent = score;
+            feedbackBox.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuestionIdx++;
+            renderQuiz();
+        }
+
+        function resetQuiz() {
+            currentQuestionIdx = 0;
+            score = 0;
+            renderQuiz();
+        }
+
+        // --- TAB SWITCHING ---
+        function switchStage(stageNum) {
+            const stage1 = document.getElementById('stage1-container');
+            const stage2 = document.getElementById('stage2-container');
+            const tab1 = document.getElementById('tab-stage1');
+            const tab2 = document.getElementById('tab-stage2');
+
+            if (stageNum === 1) {
+                stage1.classList.remove('hidden');
+                stage2.classList.add('hidden');
+
+                tab1.className = "px-4 py-2 rounded-2xl font-bold text-sm md:text-base transition-all border-b-4 border-amber-700 bg-amber-600 text-white shadow-lg";
+                tab2.className = "px-4 py-2 rounded-2xl font-bold text-sm md:text-base transition-all border-b-4 border-gray-300 bg-gray-200 text-gray-600 shadow-sm hover:bg-amber-200";
+            } else {
+                stage1.classList.add('hidden');
+                stage2.classList.remove('hidden');
+
+                tab2.className = "px-4 py-2 rounded-2xl font-bold text-sm md:text-base transition-all border-b-4 border-amber-700 bg-amber-600 text-white shadow-lg";
+                tab1.className = "px-4 py-2 rounded-2xl font-bold text-sm md:text-base transition-all border-b-4 border-gray-300 bg-gray-200 text-gray-600 shadow-sm hover:bg-amber-200";
+
+                resetQuiz();
+            }
+        }
+
+        // Initial rendering on page load
+        window.onload = function() {
+            renderStage1();
+        };
+    </script>
+</body>
+</html>
